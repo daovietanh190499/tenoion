@@ -22,7 +22,6 @@ const vueApp = new Vue({
                 window.location = "login.html";
             }
             this.user = getCurrentUserProfile()
-            console.log(this.user)
         })
 
         var colc = new Colcade(".grid", {

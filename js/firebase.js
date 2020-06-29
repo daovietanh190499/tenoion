@@ -11,6 +11,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth
+const storage = firebase.storage
+const firestore = firebase.firestore
 const FIREBASE_STATUS = {
     SUCCESS: true,
     FAIL: false
@@ -117,53 +119,35 @@ const FIREBASE_STATUS = {
     });
   }
   
-  function uploadImage (file, progressListener = (progress) => {}) { return new Promise((resolve, reject) => {
-    var user = auth().currentUser;
-    var filename = uuid();
-    var userImageRef = storage().ref().child(`images/${user.uid}/${filename}${file.type}`);
-    var uploadTask = userImageRef.put(file)
-    uploadTask.on(storage.TaskEvent.STATE_CHANGED,
-      (snapshot) => {
-        var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        progressListener(progress)
-      },
-      (error) => {
-        return reject(FIREBASE_STATUS.FAIL)
-      },
-      () => {
-        uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-          return resolve(downloadURL)
-        });
-      }
-    );
-  })}
-  
-  function uploadOneStory (story) {
-    var user = auth().currentUser;
-    const diariesCollection = firestore().collection("Diaries");
-    const userStoriesCollection = diariesCollection.doc(user.uid).collection("Stories");
-    return userStoriesCollection.doc(story.id).set(story)
-      .then(() => {
-        if(story.isPublic) firestore().collection("Newsfeed").add({...story, ...user})
-        return FIREBASE_STATUS.SUCCESS                                                              //hàm realtime lỗi không ảnh hưởng
-      })
-      .catch(() => {
-        return FIREBASE_STATUS.FAIL
-      })
+  const uploadImage = (data) => {
+    return checkUserSignIn()
+    .then(async res => {
+      const user = auth().currentUser;
+      const filename = uuidv4();
+      const imageRef = storage().ref("image").child(`images/${user.uid}/${filename}`)
+    
+      await imageRef.putString(data, 'data_url')
+    
+      return imageRef.getDownloadURL()
+    })
   }
   
-  function updateOneStory (story) {
-    var user = auth().currentUser;
-    const diariesCollection = firestore().collection("Diaries");
-    const userStoriesCollection = diariesCollection.doc(user.uid).collection("Stories");
-    return userStoriesCollection.doc(story.id).update(story)
-      .then(() => {
-        if(story.isPublic) firestore().collection("Newsfeed").add({...story, ...user})
-        return FIREBASE_STATUS.SUCCESS                                                              //hàm realtime lỗi không ảnh hưởng
-      })
-      .catch(() => {
-        return FIREBASE_STATUS.FAIL
-      })
+  function uploadOneStory (story) {
+    return checkUserSignIn()
+    .then(res => {
+      var user = auth().currentUser;
+      const diariesCollection = firestore().collection("Diaries");
+      const userStoriesCollection = diariesCollection.doc(user.uid).collection("Stories");
+      return userStoriesCollection.doc(story.id).set(story)
+        .then(() => {
+          if(story.isPublic) firestore().collection("Newsfeed").add({...story, ...user})
+          return FIREBASE_STATUS.SUCCESS                                                         
+        })
+        .catch((e) => {
+          console.log(e)
+          return FIREBASE_STATUS.FAIL
+        })
+    })
   }
   
   //lasvisible là doc cuối dùng của snapshot của collection trước
@@ -184,6 +168,23 @@ const FIREBASE_STATUS = {
       .catch(function(error) {
           return FIREBASE_STATUS.FAIL
       });
+  }
+
+  function getStoriesById (id) {
+    return checkUserSignIn()
+    .then(res => {
+      var user = auth().currentUser;
+      const diariesCollection = firestore().collection("Diaries");
+      const userStoriesCollection = diariesCollection.doc(user.uid).collection("Stories");
+      const query = userStoriesCollection.where("id", "==", id)
+      return query.get()
+        .then(function(querySnapshot) {
+          return querySnapshot
+        })
+        .catch(function(error) {
+          return FIREBASE_STATUS.FAIL
+        });
+    })
   }
   
   function getUserPublicStory (uid, lastVisible) {
