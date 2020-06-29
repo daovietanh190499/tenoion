@@ -8,19 +8,22 @@
     <link rel="stylesheet" type="text/css" href="css/index.css">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;515;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/swiper/css/swiper.min.css">
+
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://unpkg.com/swiper/js/swiper.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-firestore.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/toastedjs/dist/toasted.min.css">
-	<script src="https://unpkg.com/toastedjs/dist/toasted.min.js"></script>
+    <script src="https://unpkg.com/toastedjs/dist/toasted.min.js"></script>
+    <script src="https://unpkg.com/colcade@0/colcade.js"></script>
     <title>Teno</title>
 </head>
 
 <body>
-    <div>
+    <div id="root">
         <div class="tabs">
             <!-- TAB 1 -->
             <input type="radio" name="tab" id="tab-0" value="0" checked />
@@ -106,16 +109,55 @@
 
         <div class="swiper-container">
             <div class="swiper-wrapper">
-                <div class="swiper-slide" style="background-color: aqua;">
-                    <a href="editor.html">click here</a> <div id="info"></div> 
+                <div class="swiper-slide"> 
+                    <div class="swiper-view">
+                        <div id="like_button_container"></div>
+                    </div>
                 </div>
-                <div class="swiper-slide" style="background-color: bisque;">Slide 2</div>
-                <div class="swiper-slide" style="background-color: blueviolet;">Slide 3</div>
-                <div class="swiper-slide" style="background-color: greenyellow;">
-                    <button id="logout">Logout</button>
+                <div class="swiper-slide">
+                    <div class="swiper-view">
+
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="swiper-view">
+                        <div class="grid" data-colcade="columns: .grid-col, items: .grid-item">
+                            <div class="grid-col grid-col--1"></div>
+                            <div class="grid-col grid-col--2"></div>
+                            <div class="grid-col grid-col--3"></div>
+                            <div class="grid-col grid-col--4"></div>
+                            <div class="grid-item">
+                                <img src="https://icatcare.org/app/uploads/2018/07/Thinking-of-getting-a-cat.png">
+                                <div class="content">Airplane</div>
+                            </div>
+                            <div class="grid-item">
+                                <img src="https://img.webmd.com/dtmcms/live/webmd/consumer_assets/site_images/article_thumbnails/other/cat_relaxing_on_patio_other/1800x1200_cat_relaxing_on_patio_other.jpg">
+                                <div class="content">Airplane</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="swiper-view" id="profile">
+                        <div class="profile-card">
+                            <div class="profile">
+                                <img v-bind:src="user.photoURL" class="thumbnail" id="user-image">
+                                <h3 class="name" id="user-name">{{user.displayName}}</h3>
+                                <p class="description" id="user-email">{{user.email}}</p>
+                            </div>
+                        </div>
+                        <button id="logout" v-on:click="onLogout()" class="setting-item">Logout</button>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <a class="add-button" href="editor.html">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M0 0h24v24H0V0z" fill="none"/>
+                <path d="M18 13h-5v5c0 .55-.45 1-1 1s-1-.45-1-1v-5H6c-.55 0-1-.45-1-1s.45-1 1-1h5V6c0-.55.45-1 1-1s1 .45 1 1v5h5c.55 0 1 .45 1 1s-.45 1-1 1z"/>
+            </svg>
+        </a>
     </div>
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="js/allToast.js"></script>

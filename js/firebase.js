@@ -79,6 +79,16 @@ const FIREBASE_STATUS = {
       return resolve(FIREBASE_STATUS.FAIL)
     });
   })}
+
+  function onForgotPasswordButtonPress (email) {
+    return auth().sendPasswordResetEmail(email)
+    .then(function() {
+      return FIREBASE_STATUS.SUCCESS
+    })
+    .catch(function(error) {
+      return FIREBASE_STATUS.FAIL
+    });
+  }
   
   //dùng khi thực hiện các hành động nhạy cảm cần đăng nhập lại để xác nhận
   async function reAuthenUser() {
@@ -91,7 +101,7 @@ const FIREBASE_STATUS = {
     });
   }
   
-  function getCurrentUserProfile() {
+  const getCurrentUserProfile = () => {
     var user = auth().currentUser;
     if (user != null) {
       return user

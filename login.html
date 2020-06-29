@@ -13,8 +13,11 @@
 	<link rel="stylesheet" type="text/css" href="js/vendor/animsition/css/animsition.min.css">
 	<link rel="stylesheet" type="text/css" href="js/vendor/select2/select2.min.css">
 	<link rel="stylesheet" type="text/css" href="js/vendor/daterangepicker/daterangepicker.css">
-	<link rel="stylesheet" type="text/css" href="css/login-util.css">
+	<link rel="stylesheet" type="text/css" href="css/util.css">
 	<link rel="stylesheet" type="text/css" href="css/login.css">
+
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
 	<script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-auth.js"></script>
 	<script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-firestore.js"></script>
@@ -23,7 +26,7 @@
 </head>
 <body style="background-color: #666666;">
 	
-	<div class="limiter">
+	<div class="limiter" id="root">
 		<div class="container-login100">
 			<div class="wrap-login100">
 				<form class="login100-form validate-form">
@@ -32,15 +35,15 @@
 					</span>
 					
 					
-					<div class="wrap-input100 validate-input" data-validate = "Valid email is required: ex@abc.xyz">
-						<input class="input100" type="text" name="email">
+					<div class='wrap-input100 validate-input' v-bind:class="{ 'alert-validate': emailError }" data-validate = "Valid email is required: ex@abc.xyz">
+						<input class="input100" type="text" name="email" v-model="email" v-on:focus="focusEmail()"/>
 						<span class="focus-input100"></span>
 						<span class="label-input100">Email</span>
 					</div>
 					
 					
-					<div class="wrap-input100 validate-input" data-validate="Password is required">
-						<input class="input100" type="password" name="pass">
+					<div class='wrap-input100 validate-input' v-bind:class="{ 'alert-validate': passwordError }" data-validate="Password is required">
+						<input class="input100" type="password" name="pass" v-model="password" v-on:focus="focusPassword()"/>
 						<span class="focus-input100"></span>
 						<span class="label-input100">Password</span>
 					</div>
@@ -54,14 +57,14 @@
 								Forgot Password?
 							</a>
 							<a href="register.html" class="txt1">
-								Register
+								or <b>Register</b>
 							</a>
 						</div>
 					</div>
 			
 
 					<div class="container-login100-form-btn">
-						<button class="login100-form-btn" id="loginbtn">
+						<button class="login100-form-btn" id="loginbtn" v-on:click.prevent="loginDefault()">
 							Login
 						</button>
 					</div>
@@ -73,15 +76,15 @@
 					</div>
 
 					<div class="login100-form-social flex-c-m">
-						<a href="#" class="login100-form-social-item flex-c-m bg1 m-r-5" id="facebook">
+						<a href="#" class="login100-form-social-item flex-c-m bg1 m-r-5" v-on:click="loginFacebook()">
 							<i class="fa fa-facebook-f" aria-hidden="true"></i>
 						</a>
 
-						<a href="#" class="login100-form-social-item flex-c-m bg3 m-r-5" id="google" style="margin-left: 2rem;">
+						<a href="#" class="login100-form-social-item flex-c-m bg3 m-r-5" id="google" style="margin-left: 2rem;" v-on:click="loginGoogle()">
 							<i class="fa fa-google" aria-hidden="true"></i>
 						</a>
 					</div>
-				</form>
+				</form v-on:submit.prevent>
 			</div>
 		</div>
 	</div>

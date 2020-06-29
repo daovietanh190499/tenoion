@@ -1,62 +1,50 @@
-var app = {
-    initialize: function() {
-        document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
-    },
-
-    onDeviceReady: function() {
-    
-
-    },
-};
-
-app.initialize();
-
-function onPageChange(cb) {
-    $('input[type=radio][name=tab]').change(function() {
-        cb(parseInt(this.value))
-    });
-}
-
-function onLogout () {
-    $("#logout").click(() => {
-        toastedTopCenter.show("Pending logout ...")
-        onSignOutButtonPress().then(res => {
-            if(res) window.location = "login.html"
-            toastedTopCenter.clear()
-        })
-    })
-}
-
-function onHomePageClick() {
-    
-}
-
-function changePage(number) {
-    $("#tab-" + number).prop("checked", true);
-}
-
-var mySwiper = new Swiper ('.swiper-container', {
-    direction: 'horizontal',
-    loop: true,
-    on: {
-        init: function () {
-            console.log('swiper initialized');
-        },
-        slideChange: function () {
-            console.log('slide change', this.realIndex);
-            changePage(this.realIndex)
+const vueApp = new Vue({
+    el: '#root',
+    data: { 
+        user: {
+            photoURL: "",
+            displayName: "--.--",
+            email: "--.--"
         }
     },
-})
+    methods: {
+        onLogout() {
+            toastedTopCenter.show("Pending logout ...")
+            onSignOutButtonPress().then(res => {
+                if (res) window.location = "login.html"
+                toastedTopCenter.clear()
+            })
+        }
+    },
+    mounted() {
+        checkUserSignIn().then(res => {
+            if (!res) {
+                window.location = "login.html";
+            }
+            this.user = getCurrentUserProfile()
+            console.log(this.user)
+        })
 
-onPageChange((page) => {
-    mySwiper.slideTo(page + 1)
-})
+        var colc = new Colcade(".grid", {
+            columns: '.grid-col',
+            items: '.grid-item'
+        });
 
-onLogout()
+        var mySwiper = new Swiper('.swiper-container', {
+            direction: 'horizontal',
+            loop: false,
+            on: {
+                slideChange: function () {
+                    $("#tab-" + this.realIndex).prop("checked", true);
+                }
+            },
+        })
 
-checkUserSignIn().then(res => {
-    if(!res) {
-        window.location = "login.html";
+        $('input[type=radio][name=tab]').change(function () {
+            mySwiper.slideTo(parseInt(this.value))
+        });
+    },
+    updated() {
+        console.log("update")
     }
 })
