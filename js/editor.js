@@ -117,19 +117,23 @@ const vueApp = new Vue({
       })
     },
     uploadStory(message) {
-      this.uploadAllImage().then(res => {
-        let story = this.prepareData() 
-        uploadOneStory(story, JSON.parse(JSON.stringify(this.images))).then(res => {
-          if(res) {
-            this.uploading = "uploadingdone.svg"
-            toastedBottomCenter.show(message ? message : "upload successfully!")
-          }
-          else {
-            this.uploading = 'needuploading.svg'
-            toastedBottomCenter.show("something wrong happen!")
-          }
+      if(this.content.length > 1 || (this.content.length == 1 && this.content[0].insert.trim() !== "")) {
+        this.uploadAllImage().then(res => {
+          let story = this.prepareData() 
+          uploadOneStory(story, JSON.parse(JSON.stringify(this.images))).then(res => {
+            if(res) {
+              this.uploading = "uploadingdone.svg"
+              toastedBottomCenter.show(message ? message : "upload successfully!")
+            }
+            else {
+              this.uploading = 'needuploading.svg'
+              toastedBottomCenter.show("something wrong happen!")
+            }
+          })
         })
-      })
+      } else {
+        toastedBottomCenter.show("Content is empty!")
+      }
     },
     prepareData() {
       let object = {}

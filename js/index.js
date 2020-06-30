@@ -47,6 +47,6 @@ const vueApp = new Vue({
         this.getAllUserImages()
     },
     updated() {
-        console.log("update")
+        
     }
 })

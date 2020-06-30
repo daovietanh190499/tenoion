@@ -149,9 +149,10 @@ const FIREBASE_STATUS = {
     metadataRef.get()
     .then((docSnapshot) => {
       if (docSnapshot.exists) {
-        metadataRef.update({
-          images: firebase.firestore.FieldValue.arrayUnion(...images)
-        });
+        if (images.length !== 0)
+          metadataRef.update({
+            images: firebase.firestore.FieldValue.arrayUnion(...images)
+          });
       } else {
         metadataRef.set({images: images})
       }
