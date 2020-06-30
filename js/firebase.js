@@ -209,20 +209,23 @@ const FIREBASE_STATUS = {
   //lastVisible = querySnapshots.docs[querySnapshots.docs.length-1];
   //code lấy story theo 20 dòng một
   function getStories (lastVisible) {
-    var user = auth().currentUser;
-    const diariesCollection = firestore().collection("Diaries");
-    const userStoriesCollection = diariesCollection.doc(user.uid).collection("Stories");
-    const query = userStoriesCollection
-                  .orderBy("datetime")
-                  .limit(20)
-                  .lastVisible?startAfter(lastVisible):{} //nếu có truyền lastvisible thì chạy hàm này không thì thôi
-    return query.get()
-      .then(function(querySnapshot) {
-        return querySnapshot
-      })
-      .catch(function(error) {
-          return FIREBASE_STATUS.FAIL
-      });
+    return checkUserSignIn()
+    .then(res => {
+      var user = auth().currentUser;
+      const diariesCollection = firestore().collection("Diaries");
+      const userStoriesCollection = diariesCollection.doc(user.uid).collection("Stories");
+      let query = userStoriesCollection
+                    .orderBy("datetime")
+                    .limit(20)
+      query = lastVisible ? query.startAfter(lastVisible) : query
+      return query.get()
+        .then(function(querySnapshot) {
+          return querySnapshot
+        })
+        .catch(function(error) {
+            return FIREBASE_STATUS.FAIL
+        });
+    })
   }
 
   function getStoriesById (id) {
@@ -240,17 +243,33 @@ const FIREBASE_STATUS = {
         });
     })
   }
-  
-  function getNewsfeed (lastVisible) {
+
+  function deleteStoriesById (id) {
     return checkUserSignIn()
     .then(res => {
-      let code = getLocationCode(story.geolocation)
+      var user = auth().currentUser;
+      const diariesCollection = firestore().collection("Diaries");
+      const userStoriesCollection = diariesCollection.doc(user.uid).collection("Stories").doc(id);
+      return userStoriesCollection.delete()
+        .then(function() {
+          return FIREBASE_STATUS.SUCCESS
+        })
+        .catch(function(error) {
+          return FIREBASE_STATUS.FAIL
+        });
+    })
+  }
+  
+  function getNewsfeed (geolocation, lastVisible) {
+    return checkUserSignIn()
+    .then(res => {
+      let code = getLocationCode(geolocation)
       var user = auth().currentUser;
       const newsfeedCollection = firestore().collection("Newsfeed").doc("GeoStory").collection(code);
-      const query = newsfeedCollection
+      let query = newsfeedCollection
                     .orderBy("datetime")
                     .limit(20)
-                    .lastVisible?startAfter(lastVisible):{}
+      query = lastVisible ? query.startAfter(lastVisible) : query
       return query.get()
         .then(function(querySnapshot) {
           return querySnapshot

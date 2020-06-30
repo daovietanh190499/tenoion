@@ -1043,10 +1043,6 @@
   top: 0
 }
 
-.weather img {
-  width: 30px;
-}
-
 .weather label {
   font-size: 13px;
   margin-left: .5rem;

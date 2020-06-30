@@ -4,6 +4,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;515;600;700&display=swap" rel="stylesheet">
 <link href="css/editor.css" rel="stylesheet">
 <link href="css/util.css" rel="stylesheet">
+<link href="font/wifont/weather-icons.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-auth.js"></script>
@@ -35,7 +36,7 @@
 </div>
 <div class="weather">
     <div style="display: flex; align-items: center;">
-        <img v-bind:src="'img/svg/' + weather + '.svg'">
+        <i class="wi" v-bind:class="weather" style="font-size: 21px;"></i>
         <label>{{location}}</label>
     </div>
     <div style="display: flex; align-items: center;">

@@ -35,19 +35,19 @@
 					</span>
 					
 					<div class="wrap-input100 validate-input" v-bind:class="{ 'alert-validate': emailError }" data-validate = "Valid email is required: ex@abc.xyz">
-						<input class="input100" type="text" name="email" v-model="email" v-on:focus="focusEmail()">
+						<input class="input100" type="text" name="email" v-model="email" v-on:focus="focusEmail()" v-on:blur="blurEmail()" v-bind:class="{ 'has-val': emailBlur }">
 						<span class="focus-input100"></span>
 						<span class="label-input100">Email</span>
 					</div>
 					
 					<div class="wrap-input100 validate-input" v-bind:class="{ 'alert-validate': passwordError }" data-validate="Password is required">
-						<input class="input100" type="password" name="pass" v-model="password" v-on:focus="focusPassword()">
+						<input class="input100" type="password" name="pass" v-model="password" v-on:focus="focusPassword()" v-on:blur="blurPassword()" v-bind:class="{ 'has-val': passwordBlur }">
 						<span class="focus-input100"></span>
 						<span class="label-input100">Password</span>
                     </div>
                     
                     <div class="wrap-input100 validate-input" v-bind:class="{ 'alert-validate': confirmPasswordError }" data-validate="Confirm password is required">
-						<input class="input100" type="password" name="confirmpass" v-model="confirmPassword" v-on:focus="focusConfirmPassword()">
+						<input class="input100" type="password" name="confirmpass" v-model="confirmPassword" v-on:focus="focusConfirmPassword()" v-on:blur="blurConfirmPassword()" v-bind:class="{ 'has-val': confirmPasswordBlur }">
 						<span class="focus-input100"></span>
 						<span class="label-input100">Confirm password</span>
 					</div>

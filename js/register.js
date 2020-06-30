@@ -7,7 +7,10 @@ const vueApp = new Vue({
             confirmPassword: "",
             emailError: false,
             passwordError: false,
-            confirmPasswordError: false
+            confirmPasswordError: false,
+            passwordBlur: "",
+            confirmPasswordBlur: "",
+            emailBlur: ""
         }
     },
     methods: {
@@ -53,7 +56,10 @@ const vueApp = new Vue({
         },
         focusEmail() {this.emailError = false},
         focusPassword() {this.passwordError = false},
-        focusConfirmPassword() {this.confirmPasswordError = false}
+        focusConfirmPassword() {this.confirmPasswordError = false},
+        blurEmail() {this.emailBlur = this.email.trim() !== ""},
+        blurPassword() {this.passwordBlur = this.password.trim() !== ""},
+        blurConfirmPassword() {this.confirmPasswordBlur = this.confirmPassword.trim() !== ""}
     },
     mounted () {
         checkUserSignIn().then(res => {

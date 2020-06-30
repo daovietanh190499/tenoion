@@ -9,12 +9,14 @@ const vueApp = new Vue({
     location: "--.--",
     datetime: "--.--",
     weather: "wi-cloudy",
+    weatherCode: "731",
     queryObject: {},
     content: [],
     quill: null,
     apikey: 'ec3f58b9a7e093e62faa053dedbb16bc',
     uploading: "needuploading.svg",
     isPublic: false,
+    text: "",
     images: []
   },
   methods : {
@@ -39,6 +41,8 @@ const vueApp = new Vue({
           if(this.quill) this.setQuillContent()
           this.uploading = data.uploading
           this.isPublic = data.isPublic
+          this.text = data.text
+          this.weatherCode = data.weatherCode
         })
       }
     },
@@ -62,9 +66,9 @@ const vueApp = new Vue({
         if (!(code > 699 && code < 800) && !(code > 899 && code < 1000)) {
           icon = 'day-' + icon;
         }
+        this.weatherCode = code;
         this.weather = prefix + icon;
         this.location = res.name;
-        console.log(res)
       })
     },
     initQuillEditor() {
@@ -93,6 +97,7 @@ const vueApp = new Vue({
       this.quill.on('text-change', (eventName) => {
         this.uploading = "needuploading.svg"
         let data = this.quill.getContents()
+        this.text = this.quill.getText()
         this.content = data.ops
       });
     },
@@ -109,6 +114,7 @@ const vueApp = new Vue({
       })
       return Promise.all(dataImageUpload).then(res => {
         this.content = res
+        this.setQuillContent()
         let images = []
         for(let i = 0; i < this.content.length; i ++) {
           if(this.content[i].insert.image) images.push(this.content[i].insert.image)
@@ -145,6 +151,8 @@ const vueApp = new Vue({
       object['content'] = JSON.parse(JSON.stringify(this.content))
       object['uploading'] = "uploadingdone.svg"
       object['isPublic'] = this.isPublic
+      object['text'] = this.text
+      object['weatherCode'] = this.weatherCode
       return object
     },
     disableContextMenu() {
