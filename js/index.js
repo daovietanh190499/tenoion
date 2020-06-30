@@ -5,7 +5,8 @@ const vueApp = new Vue({
             photoURL: "",
             displayName: "--.--",
             email: "--.--"
-        }
+        },
+        images: []
     },
     methods: {
         onLogout() {
@@ -13,6 +14,11 @@ const vueApp = new Vue({
             onSignOutButtonPress().then(res => {
                 if (res) window.location = "login.html"
                 toastedTopCenter.clear()
+            })
+        },
+        getAllUserImages() {
+            getUserImages().then(res => {
+                this.images = res.data().images
             })
         }
     },
@@ -23,11 +29,6 @@ const vueApp = new Vue({
             }
             this.user = getCurrentUserProfile()
         })
-
-        var colc = new Colcade(".grid", {
-            columns: '.grid-col',
-            items: '.grid-item'
-        });
 
         var mySwiper = new Swiper('.swiper-container', {
             direction: 'horizontal',
@@ -42,6 +43,8 @@ const vueApp = new Vue({
         $('input[type=radio][name=tab]').change(function () {
             mySwiper.slideTo(parseInt(this.value))
         });
+
+        this.getAllUserImages()
     },
     updated() {
         console.log("update")

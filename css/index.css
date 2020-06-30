@@ -186,28 +186,20 @@ body {
 	
 .grid {
 	display: flex;
+	flex-direction: row;
+	max-width: 1200px;
+	justify-content: space-between;
 }
 
 .grid-col {
-	flex: 1;
-	padding: 0 0.1rem;
+	width: 49.5%;
 }
-
-.grid-col--4 { margin-right: 0; }
-
-.grid-col--2, .grid-col--3 { display: none; }
-
-@media ( min-width: 768px ) {
-	.grid-col { width: 32%; }
-	.grid-col--2 { display: block; }
-}
-
-@media ( min-width: 1200px ) {
-	.grid-col { width: 23.5%; }
-	.grid-col--2, .grid-col--3 { display: block; }
-}
-
+  
 .grid-item {
+	width: 100%;
+	height: auto;
+	display: block;
+	overflow: auto;
 	position: relative;
 }
 
@@ -217,7 +209,7 @@ body {
 	color: white;
 	margin-top: 1em;
 	font-size: 1em;
-	margin: .2em .5em;
+	margin: .2em .2em;
 	top: 0;
 	left: 0;
 }

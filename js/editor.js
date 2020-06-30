@@ -14,7 +14,8 @@ const vueApp = new Vue({
     quill: null,
     apikey: 'ec3f58b9a7e093e62faa053dedbb16bc',
     uploading: "needuploading.svg",
-    isPublic: false
+    isPublic: false,
+    images: []
   },
   methods : {
     getQueryObject() {
@@ -28,10 +29,7 @@ const vueApp = new Vue({
       if(this.queryObject.id && this.queryObject.id.length !== 0) {
         this.id = this.queryObject.id
         getStoriesById(this.id).then(res => {
-          let data
-          res.forEach(function(doc) {
-            data = doc.data()
-          });
+          let data = res.exists ? res.data() : {}
           this.geolocation.lat = data.geolocation.lat
           this.geolocation.lon = data.geolocation.lon
           this.location = data.location
@@ -111,15 +109,25 @@ const vueApp = new Vue({
       })
       return Promise.all(dataImageUpload).then(res => {
         this.content = res
+        let images = []
+        for(let i = 0; i < this.content.length; i ++) {
+          if(this.content[i].insert.image) images.push(this.content[i].insert.image)
+        }
+        this.images = images
       })
     },
-    uploadStory() {
+    uploadStory(message) {
       this.uploadAllImage().then(res => {
         let story = this.prepareData() 
-        console.log(story);
-        uploadOneStory(story).then(res => {
-          if(res) this.uploading = "uploadingdone.svg"
-          else this.uploading = 'needuploading.svg'
+        uploadOneStory(story, JSON.parse(JSON.stringify(this.images))).then(res => {
+          if(res) {
+            this.uploading = "uploadingdone.svg"
+            toastedBottomCenter.show(message ? message : "upload successfully!")
+          }
+          else {
+            this.uploading = 'needuploading.svg'
+            toastedBottomCenter.show("something wrong happen!")
+          }
         })
       })
     },
@@ -141,6 +149,10 @@ const vueApp = new Vue({
         event.stopPropagation();
         return false;
       };
+    },
+    publicStory() {
+      this.isPublic = !this.isPublic
+      this.uploadStory((this.isPublic ? "Public" : "Unpublic") + "story successfully!")
     }
   },
   mounted() {
@@ -148,7 +160,6 @@ const vueApp = new Vue({
       if (!res) {
           window.location = "login.html";
       }
-      this.user = getCurrentUserProfile()
     })
     this.getQueryObject()
     this.initData()
