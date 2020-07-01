@@ -15,6 +15,9 @@
 	<link rel="stylesheet" type="text/css" href="js/vendor/daterangepicker/daterangepicker.css">
 	<link rel="stylesheet" type="text/css" href="css/util.css">
 	<link rel="stylesheet" type="text/css" href="css/register.css">
+
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
 	<script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-auth.js"></script>
 	<script src="https://www.gstatic.com/firebasejs/7.15.5/firebase-firestore.js"></script>
@@ -23,7 +26,7 @@
 </head>
 <body style="background-color: #666666;">
 	
-	<div class="limiter">
+	<div class="limiter" id="root">
 		<div class="container-login100">
 			<div class="wrap-login100">
 				<form class="login100-form validate-form">
@@ -31,14 +34,14 @@
 						Forgot password
 					</span>
 					
-					<div class="wrap-input100 validate-input" data-validate = "Valid email is required: ex@abc.xyz">
-						<input class="input100" type="text" name="email">
+					<div class='wrap-input100 validate-input' v-bind:class="{ 'alert-validate': emailError }" data-validate = "Valid email is required: ex@abc.xyz">
+						<input class="input100" type="text" name="email" v-model="email" v-on:focus="focusEmail()" v-on:blur="blurEmail()" v-bind:class="{ 'has-val': emailBlur }"/>
 						<span class="focus-input100"></span>
-						<span class="label-input100">Enter your account email</span>
+						<span class="label-input100">Enter your email account</span>
 					</div>
 					
 					<div class="container-login100-form-btn">
-						<button class="login100-form-btn" id="loginbtn">
+						<button class="login100-form-btn" id="loginbtn" v-on:click.prevent="forgotPasswordDefault()">
 							Submit
 						</button>
 					</div>

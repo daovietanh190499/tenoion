@@ -131,8 +131,8 @@ const FIREBASE_STATUS = {
       return imageRef.getDownloadURL()
     })
   }
-  
-  function getLocationCode(pos) {
+
+  function getLocationDegree(pos) {
     let lat = pos.lat
     let lon = pos.lon
     let degreeLat = Math.floor(lat)
@@ -141,7 +141,21 @@ const FIREBASE_STATUS = {
     let degreeLon = Math.abs(Math.floor(lon))
     degreeLon = degreeLon < 0 ? (Math.abs(degreeLon) - 1) : degreeLon
     let minuteLon = Math.floor(((Math.abs(lon) - degreeLon)*3600)/60)
-    return (degreeLat + "°" + (Math.floor(minuteLat/5)*5) + "'" + (lat >= 0 ? "N" : "S") + "," + degreeLon + "°" + (Math.floor(minuteLon/5)*5) + "'" + (lon >= 0 ? "E" : "W"))
+    return {degreeLat: degreeLat, degreeLon: degreeLon, minuteLat: minuteLat, minuteLon: minuteLon}
+  }
+  
+  function getLocationCode(pos) {
+    let lat = pos.lat
+    let lon = pos.lon
+    let data = getLocationDegree(pos)
+    return (data.degreeLat + "+" + (Math.floor(data.minuteLat/5)*5) + (lat >= 0 ? "N" : "S") + "," + data.degreeLon + "+" + (Math.floor(data.minuteLon/5)*5) + (lon >= 0 ? "E" : "W"))
+  }
+
+  function getLocationCodeLevel2(pos) {
+    let lat = pos.lat
+    let lon = pos.lon
+    let data = getLocationDegree(pos)
+    return (data.degreeLat + "+" + (Math.floor(data.minuteLat/15)*15) + (lat >= 0 ? "N" : "S") + "," + data.degreeLon + "+" + (Math.floor(data.minuteLon/15)*15) + (lon >= 0 ? "E" : "W"))
   }
 
   function updateMetadata (user, images) {
@@ -168,15 +182,14 @@ const FIREBASE_STATUS = {
       return userStoriesCollection.doc(story.id).set(story)
         .then(() => {
           let code = getLocationCode(story.geolocation)
+          let codev2 = getLocationCodeLevel2(story.geolocation)
           updateMetadata(user, images)
           if(story.isPublic) {
-            firestore().collection("Newsfeed").doc("GeoStory")
-              .collection(code)
+            firestore().collection("Newsfeed")
               .doc(story.id)
-              .set({...story, userPhoto: user.photoURL, userName: user.displayName})
+              .set({...story, locationCode: code, locationCodev2: codev2, userPhoto: user.photoURL, userName: user.displayName})
           } else {
-            firestore().collection("Newsfeed").doc("GeoStory")
-              .collection(code)
+            firestore().collection("Newsfeed")
               .doc(story.id)
               .delete()
           }
@@ -244,14 +257,18 @@ const FIREBASE_STATUS = {
     })
   }
 
-  function deleteStoriesById (id) {
+  function deleteStoryById (story) {
     return checkUserSignIn()
     .then(res => {
       var user = auth().currentUser;
       const diariesCollection = firestore().collection("Diaries");
-      const userStoriesCollection = diariesCollection.doc(user.uid).collection("Stories").doc(id);
+      const userStoriesCollection = diariesCollection.doc(user.uid).collection("Stories").doc(story.id);
       return userStoriesCollection.delete()
         .then(function() {
+          if(story.isPublic)
+            firestore().collection("Newsfeed")
+              .doc(story.id)
+              .delete()
           return FIREBASE_STATUS.SUCCESS
         })
         .catch(function(error) {
@@ -260,22 +277,50 @@ const FIREBASE_STATUS = {
     })
   }
   
-  function getNewsfeed (geolocation, lastVisible) {
+  function getNewsfeed (geolocation, distance, lastVisible) {
     return checkUserSignIn()
     .then(res => {
-      let code = getLocationCode(geolocation)
-      var user = auth().currentUser;
-      const newsfeedCollection = firestore().collection("Newsfeed").doc("GeoStory").collection(code);
+      let listCode = []
+      let code = getLocationDegree(geolocation)
+      let totalMinuteLat = (code.degreeLat*60 + code.minuteLat) * (geolocation.lat < 0 ? -1 : 1)
+      let totalMinuteLon = (code.degreeLon*60 + code.minuteLon) * (geolocation.lon < 0 ? -1 : 1)
+      let number = distance/10
+      let codeType = number > 2 ? "locationCodev2" : "locationCode"
+      let degreeBase = number > 2 ? 15 : 5
+      numberRun = number > 2 ? number/3 : number
+      for(let i = -(numberRun - 1); i <= numberRun - 1; i ++) {
+        let minuteLat = totalMinuteLat + i*degreeBase
+        for(let j = -(numberRun - 1); j <= numberRun - 1; j ++) {
+          let minuteLon = totalMinuteLon + j*degreeBase
+          let code = number > 2 ? getLocationCodeLevel2({lat: minuteLat/60, lon: minuteLon/60}) : getLocationCode({lat: minuteLat/60, lon: minuteLon/60})
+          listCode.push(code)
+        }
+      }
+      const newsfeedCollection = firestore().collection("Newsfeed")
       let query = newsfeedCollection
                     .orderBy("datetime")
                     .limit(20)
+                    .where(codeType, "in", listCode)
       query = lastVisible ? query.startAfter(lastVisible) : query
       return query.get()
         .then(function(querySnapshot) {
           return querySnapshot
         })
         .catch(function(error) {
+            console.log(error)
             return FIREBASE_STATUS.FAIL
         });
     })
+  }
+
+  function getNewsfeedById(id) {
+    return firestore().collection("Newsfeed")
+              .doc(id)
+              .get()
+              .then(function(querySnapshot) {
+                return querySnapshot
+              })
+              .catch(function(error) {
+                  return FIREBASE_STATUS.FAIL
+              });
   }

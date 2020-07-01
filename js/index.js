@@ -17,7 +17,9 @@ const vueApp = new Vue({
         stories: [],
         newsfeed: [],
         locationName: "Hanoi, Vietnam",
-        apikey: '46a239ec8255b0'
+        apikey: '46a239ec8255b0',
+        showGreeting: true,
+        distance: localStorage.getItem("scanDistance") ? localStorage.getItem("scanDistance") : 10
     },
     methods: {
         onLogout() {
@@ -29,16 +31,18 @@ const vueApp = new Vue({
         },
         getAllUserImages() {
             getUserImages().then(res => {
-                this.images = ((res && res.data()) ? res.data().images : [])
+                this.images = ((res && res.data() && res.data().images) ? res.data().images : [])
             })
         },
         getUserStories() {
+            toastedTopCenter.show("Please wait, getting data ...")
             getStories().then(res => {
                 let stories = []
                 res.forEach(story => {
                     stories.push(story.data())
                 })
-                this.stories = stories
+                toastedTopCenter.clear()
+                this.stories = [...this.stories, ...stories]
             })
         },
         getNewsFeed() {
@@ -47,14 +51,13 @@ const vueApp = new Vue({
                     this.geolocation.lat = pos.coords.latitude 
                     this.geolocation.lon = pos.coords.longitude
                     this.getLocation()
-                    getNewsfeed(this.geolocation)
+                    getNewsfeed(this.geolocation, this.distance)
                     .then(res => {
                         let stories = []
                         res.forEach(story => {
                             stories.push(story.data())
                         })
-                        this.newsfeed = stories
-                        console.log(this.newsfeed)
+                        this.newsfeed = [...this.newsfeed, ...stories]
                     })
                 });
             }
@@ -65,10 +68,8 @@ const vueApp = new Vue({
                 loop: false,
                 on: {
                     slideChange:() => {
-                        if(this.mySwiper.realIndex === 3) {
-                            this.showAdd = false
-                        }
-                        else this.showAdd = true
+                        this.showAdd = this.mySwiper.realIndex !== 3
+                        this.showGreeting = this.mySwiper.realIndex === 0
                         this.page = this.mySwiper.realIndex
                     }
                 },
@@ -78,17 +79,28 @@ const vueApp = new Vue({
             this.mySwiper.slideTo(parseInt(page))
         },
         goToEditor(id, isNewsfeed) {
-            window.location = "editor.html?id=" + id + (isNewsfeed ? "&newfeed=true" : "")
+            window.location = "editor.html?" + (id ? ("id=" +id) : "") + (isNewsfeed ? "&newsfeed=true" : "")
         },
         getLocation() {
             fetch(`https://us1.locationiq.com/v1/reverse.php?key=${this.apikey}&lat=${this.geolocation.lat}&lon=${this.geolocation.lon}&format=json`)
             .then(res => res.json())
             .then(res => {
-                this.locationName = res.address.state + ", " + res.address.country
+                this.locationName = res.address.state?res.address.state:res.address.city + ", " + res.address.country?res.address.country:""
             })
+        },
+        deleteStory(story) {
+            deleteStoryById(story).then(res => {
+                if(res) toastedBottomCenter.show("Success delete story")
+                else toastedBottomCenter.show("Something wrong happen")
+                window.location = "index.html"
+            })
+        },
+        saveDistance() {
+            localStorage.setItem("scanDistance", this.distance)
         }
     },
     mounted() {
+        (!localStorage.getItem("scanDistance") || localStorage.getItem("scanDistance").length == 0) ? localStorage.setItem("scanDistance", 10) : {}
         checkUserSignIn().then(res => {
             if (!res) {
                 window.location = "login.html";

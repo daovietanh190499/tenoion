@@ -17,7 +17,8 @@ const vueApp = new Vue({
     uploading: "needuploading.svg",
     isPublic: false,
     text: "",
-    images: []
+    images: [],
+    deleting: "delete.svg"
   },
   methods : {
     getQueryObject() {
@@ -30,21 +31,27 @@ const vueApp = new Vue({
     initData() {
       if(this.queryObject.id && this.queryObject.id.length !== 0) {
         this.id = this.queryObject.id
-        getStoriesById(this.id).then(res => {
-          let data = res.exists ? res.data() : {}
-          this.geolocation.lat = data.geolocation.lat
-          this.geolocation.lon = data.geolocation.lon
-          this.location = data.location
-          this.datetime = data.datetime
-          this.weather = data.weather
-          this.content = JSON.parse(JSON.stringify(data.content))
-          if(this.quill) this.setQuillContent()
-          this.uploading = data.uploading
-          this.isPublic = data.isPublic
-          this.text = data.text
-          this.weatherCode = data.weatherCode
-        })
+        if(this.queryObject.newsfeed) {
+          getNewsfeedById(this.id).then(this.migrateData)
+        }
+        else {
+          getStoriesById(this.id).then(this.migrateData)
+        }
       }
+    },
+    migrateData(res) {
+      let data = res.exists ? res.data() : {}
+      this.geolocation.lat = data.geolocation.lat
+      this.geolocation.lon = data.geolocation.lon
+      this.location = data.location
+      this.datetime = data.datetime
+      this.weather = data.weather
+      this.content = JSON.parse(JSON.stringify(data.content))
+      if(this.quill) this.setQuillContent()
+      this.uploading = data.uploading
+      this.isPublic = data.isPublic
+      this.text = data.text
+      this.weatherCode = data.weatherCode
     },
     getLocationAndDatetime() {
       if (navigator.geolocation) {
@@ -76,17 +83,17 @@ const vueApp = new Vue({
         modules: {
           toolbar: [
             ['bold', 'italic', 'underline'],
-            ['image', 'blockquote'],
-            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+            ['image', 'video', 'blockquote'],
             [{ 'list': 'ordered' }, { 'list': 'bullet' }],
             [{ 'align': [] }],
             [{ 'script': 'sub'}, { 'script': 'super' }],
-            [{ 'color': [] }, { 'background': [] }]
+            ['clean']
           ]
         },
         placeholder: 'Write something ...',
-        theme: 'bubble'
+        theme: 'snow'
       });
+      this.queryObject.newsfeed ? this.quill.disable() : this.quill.enable(true)
     },
     setQuillContent() {
       this.quill.setContents(JSON.parse(JSON.stringify(this.content)))
@@ -123,7 +130,7 @@ const vueApp = new Vue({
       })
     },
     uploadStory(message) {
-      if(this.content.length > 1 || (this.content.length == 1 && this.content[0].insert.trim() !== "")) {
+      if((this.content.length > 1 || (this.content.length == 1 && this.content[0].insert.trim() !== "")) && !this.queryObject.newsfeed) {
         this.uploadAllImage().then(res => {
           let story = this.prepareData() 
           uploadOneStory(story, JSON.parse(JSON.stringify(this.images))).then(res => {
@@ -138,7 +145,9 @@ const vueApp = new Vue({
           })
         })
       } else {
-        toastedBottomCenter.show("Content is empty!")
+        this.queryObject.newsfeed ? 
+        toastedBottomCenter.show("You do not have permission to change this!")
+        :toastedBottomCenter.show("Content is empty!")
       }
     },
     prepareData() {
@@ -165,7 +174,22 @@ const vueApp = new Vue({
     publicStory() {
       this.isPublic = !this.isPublic
       this.uploadStory((this.isPublic ? "Public" : "Unpublic") + "story successfully!")
-    }
+    },
+    deleteStory() {
+      if((this.content.length > 1 || (this.content.length == 1 && this.content[0].insert.trim() !== "")) && !this.queryObject.newsfeed) {
+        this.deleting = "uploading.gif"
+        deleteStoryById({id: this.id, isPublic: this.isPublic}).then(res => {
+            if(res) toastedBottomCenter.show("Success delete story")
+            else toastedBottomCenter.show("Something wrong happen")
+            this.deleting = "delete.svg"
+            window.location = "editor.html"
+        })
+      } else {
+        this.queryObject.newsfeed ? 
+        toastedBottomCenter.show("You do not have permission to change this!")
+        :toastedBottomCenter.show("Content is empty!")
+      }
+    },
   },
   mounted() {
     checkUserSignIn().then(res => {
