@@ -51,7 +51,6 @@ const vueApp = new Vue({
                     this.geolocation.lat = pos.coords.latitude 
                     this.geolocation.lon = pos.coords.longitude
                     this.getLocation()
-                    console.log(this.geolocation)
                     getNewsfeed(this.geolocation, this.distance)
                     .then(res => {
                         let stories = []
