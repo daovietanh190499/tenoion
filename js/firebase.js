@@ -296,6 +296,7 @@ const FIREBASE_STATUS = {
           listCode.push(code)
         }
       }
+      console.log(listCode)
       const newsfeedCollection = firestore().collection("Newsfeed")
       let query = newsfeedCollection
                     .orderBy("datetime")
