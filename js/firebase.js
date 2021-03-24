@@ -305,6 +305,7 @@ const FIREBASE_STATUS = {
       query = lastVisible ? query.startAfter(lastVisible) : query
       return query.get()
         .then(function(querySnapshot) {
+          console.log(querySnapshot)
           return querySnapshot
         })
         .catch(function(error) {
