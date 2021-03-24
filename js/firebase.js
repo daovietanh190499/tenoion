@@ -1,12 +1,12 @@
 const firebaseConfig = {
-    apiKey: "AIzaSyBNvHFNWhPLglgIcn1R0Vv2fzNsPBZLOik",
-    authDomain: "teno-324ed.firebaseapp.com",
-    databaseURL: "https://teno-324ed.firebaseio.com",
-    projectId: "teno-324ed",
-    storageBucket: "teno-324ed.appspot.com",
-    messagingSenderId: "831814607590",
-    appId: "1:831814607590:web:31847de88ccad3f9f19127",
-    measurementId: "G-YN5TG889JZ"
+    apiKey: "AIzaSyA8voZbFQV9IwG0BoWZv6KbcOlJqU9dsq8",
+    authDomain: "teno-4cec1.firebaseapp.com",
+    databaseURL: "https://teno-4cec1.firebaseio.com",
+    projectId: "teno-4cec1",
+    storageBucket: "teno-4cec1.appspot.com",
+    messagingSenderId: "843736270960",
+    appId: "1:843736270960:web:e570448f5b2022755c8cb5",
+    measurementId: "G-N1EPZDVC3G"
 };
 firebase.initializeApp(firebaseConfig);
 
