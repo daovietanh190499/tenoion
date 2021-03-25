@@ -22,11 +22,9 @@ const FIREBASE_STATUS = {
         const facebookCredential = new auth.FacebookAuthProvider();
         return auth().signInWithRedirect(facebookCredential)
         .then((data) => {
-            console.log("ok")
             return FIREBASE_STATUS.SUCCESS
         })
         .catch((error) => {
-            console.log("fail")
             return FIREBASE_STATUS.FAIL
         });
     }
