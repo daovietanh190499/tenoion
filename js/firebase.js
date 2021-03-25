@@ -20,7 +20,7 @@ const FIREBASE_STATUS = {
 
     async function onFacebookButtonPress() {
         const facebookCredential = new auth.FacebookAuthProvider();
-        return auth().signInWithCredential(facebookCredential)
+        return auth().signInWithRedirect(facebookCredential)
         .then((data) => {
             return FIREBASE_STATUS.SUCCESS
         })
